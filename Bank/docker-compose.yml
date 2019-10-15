@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  onboar.api:
+    image: ${DOCKER_REGISTRY-}onboarapi
+    build:
+      context: .
+      dockerfile: Onboar.Api/Dockerfile
+    depends_on:
+      - rabbit
+
+  rabbit:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
