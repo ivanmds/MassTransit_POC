@@ -13,7 +13,7 @@ namespace Onboar.Api.Controllers
             => _bus = bus;
 
         [HttpPost]
-        public IActionResult AddCustomer(ICustomer customer)
+        public IActionResult AddCustomer(Customer customer)
         {
             _bus.Publish(customer);
             return Ok();

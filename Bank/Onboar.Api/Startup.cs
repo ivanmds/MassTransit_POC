@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Onboar.Api.BusConfigs.Consumers;
 using Onboar.Api.BusConfigs.HostedServices;
-using Onboar.Api.Model;
 
 namespace Onboar.Api
 {
@@ -24,17 +23,29 @@ namespace Onboar.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHealthChecks();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddMassTransit(cfg =>
+            //services.AddSingleton<CustomerConsumer>();
+            services.AddMassTransit(x =>
             {
-                cfg.AddConsumer<CustomerConsumer>();
-                cfg.AddBus(ConfigureBus);
-                cfg.AddRequestClient<ICustomer>();
+                //x.AddConsumer<CustomerConsumer>();
+                x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
+                {
+                    var host = cfg.Host(new Uri("amqp://guest:guest@rabbit:5672/"), ep => { });
+
+                    cfg.ReceiveEndpoint(host, "consumer_create_queue", ep =>
+                    {
+                        //ep.PrefetchCount = 16;
+                        //ep.UseMessageRetry(r => r.Interval(2, 100));
+
+                        ep.Consumer<CustomerConsumer>();
+                    });
+                }));
             });
 
             services.AddSingleton<IHostedService, MassTransitHostedService>();
-            services.AddSingleton<IHostedService, CustomerHostedService>();
+            //services.AddSingleton<IHostedService, CustomerHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,13 +65,13 @@ namespace Onboar.Api
             app.UseMvc();
         }
 
-        public IBusControl ConfigureBus(IServiceProvider provider)
-        {
-            return Bus.Factory.CreateUsingRabbitMq(cfg =>
-            {
-                var host = cfg.Host(new Uri("amqp://guest:guest@localhost:5672/"), h => { });
-                cfg.ConfigureEndpoints(provider);
-            });
-        }
+        //public IBusControl ConfigureBus(IServiceProvider provider)
+        //{
+        //    return Bus.Factory.CreateUsingRabbitMq(cfg =>
+        //    {
+        //        var host = cfg.Host(new Uri("amqp://guest:guest@localhost:5672/"), h => { });
+        //        cfg.ConfigureEndpoints(provider);
+        //    });
+        //}
     }
 }

@@ -4,9 +4,9 @@ using Onboar.Api.Model;
 
 namespace Onboar.Api.BusConfigs.Consumers
 {
-    public class CustomerConsumer : IConsumer<ICustomer>
+    public class CustomerConsumer : IConsumer<Customer>
     {
-        public Task Consume(ConsumeContext<ICustomer> context)
+        public Task Consume(ConsumeContext<Customer> context)
         {
             throw new System.NotImplementedException();
         }
