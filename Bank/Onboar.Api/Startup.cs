@@ -26,10 +26,8 @@ namespace Onboar.Api
             services.AddHealthChecks();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            //services.AddSingleton<CustomerConsumer>();
             services.AddMassTransit(x =>
             {
-                //x.AddConsumer<CustomerConsumer>();
                 x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
                 {
                     var host = cfg.Host(new Uri("amqp://guest:guest@rabbit:5672/"), ep => { });
@@ -45,10 +43,8 @@ namespace Onboar.Api
             });
 
             services.AddSingleton<IHostedService, MassTransitHostedService>();
-            //services.AddSingleton<IHostedService, CustomerHostedService>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IHostingEnvironment env)
         {
             if (env.IsDevelopment())
