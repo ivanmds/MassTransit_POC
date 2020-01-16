@@ -1,5 +1,9 @@
 ﻿using System;
+using BeetleX.Redis;
+using GreenPipes.Caching;
 using MassTransit;
+using MassTransit.RedisSagas;
+using MassTransit.Saga;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +12,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Onboar.Api.BusConfigs.Consumers;
 using Onboar.Api.BusConfigs.HostedServices;
+using Onboar.Api.Infra.Caching;
+using Onboar.Api.Sagas.Ted;
+using StackExchange.Redis;
 
 namespace Onboar.Api
 {
@@ -32,16 +39,19 @@ namespace Onboar.Api
                 {
                     var host = cfg.Host(new Uri("amqp://guest:guest@rabbit:5672/"), ep => { });
 
-                    cfg.ReceiveEndpoint(host, "consumer_create_queue", ep =>
+                    cfg.ReceiveEndpoint("consumer_create_queue", ep =>
                     {
-                        //ep.PrefetchCount = 16;
-                        //ep.UseMessageRetry(r => r.Interval(2, 100));
-
                         ep.Consumer<CustomerConsumer>();
                     });
                 }));
             });
 
+
+            var redisConnection = "redis://redis:6379";
+            var redis = ConnectionMultiplexer.Connect(redisConnection);
+            var repository = new RedisSagaRepository<TedSaga>(redis, "saga:ted");
+
+            services.AddSingleton(repository);
             services.AddSingleton<IHostedService, MassTransitHostedService>();
         }
 

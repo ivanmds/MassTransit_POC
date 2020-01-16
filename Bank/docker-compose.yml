@@ -8,9 +8,17 @@ services:
       dockerfile: Onboar.Api/Dockerfile
     depends_on:
       - rabbit
+      - redis
 
   rabbit:
     image: rabbitmq:3-management
     ports:
       - "15672:15672"
       - "5672:5672"
+   
+  redis:
+    image: redis
+    ports: 
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
