@@ -5,13 +5,14 @@ using System;
 
 namespace Onboar.Api.Sagas.Ted
 {
-    public class TedSaga : AutomatonymousStateMachine<TedSaga>, ISaga, IVersionedSaga
+    public class TedSaga : MassTransitStateMachine<TedSaga>, ISaga, IVersionedSaga
     {
         public TedSaga()
         {
+            Name("ted_saga");
         }
 
-        public Guid CorrelationId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public int Version { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public Guid CorrelationId { get; set; }
+        public int Version { get; set; }
     }
 }

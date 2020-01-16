@@ -50,8 +50,8 @@ namespace Onboar.Api
             var redisConnection = "redis://redis:6379";
             var redis = ConnectionMultiplexer.Connect(redisConnection);
             var repository = new RedisSagaRepository<TedSaga>(redis, "saga:ted");
-
             services.AddSingleton(repository);
+
             services.AddSingleton<IHostedService, MassTransitHostedService>();
         }
 
